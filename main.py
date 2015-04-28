@@ -23,14 +23,13 @@ REMOVED_EDGE = (2, 3)
 
 
 def get_args():
-    parser = ArgumentParser()
-    parser.add_argument(
-        '-i', '--input', dest='input', type=str, help='path to json file containing list of edges')
-    parser.add_argument('-o', '--output', dest='output', type=str, help='path to output file')
-    parser.add_argument('-d', '--draw', action='store_true', dest='draw', help='Draw graphs')
-    parser.add_argument('-r', '--removed', dest='removed', type=int, nargs=2, help='edge to remove eg. 1 3')
-    parser.add_argument('start', type=int, help='Start node number')
-    parser.add_argument('end', type=int, help='End node number')
+    parser = ArgumentParser(description="Application for finding paths in a graph in case of emergency edges.")
+    parser.add_argument('-i', dest='input', type=str, help='path to json file containing list of edges, eg. input.json')
+    parser.add_argument('-o', dest='output', type=str, help='path to output file, eg. out.txt')
+    parser.add_argument('-r', dest='removed', type=int, nargs=2, help='edge to remove eg. 1 3')
+    parser.add_argument('-d', action='store_true', dest='draw', help='Draw graphs')
+    parser.add_argument('start', type=int, help='Start node number, eg. 1')
+    parser.add_argument('end', type=int, help='End node number, eg. 3')
 
     return parser.parse_args()
 
