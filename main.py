@@ -1,9 +1,11 @@
 import json
 import logging
+import random
 
 from emergency_path_finder import EmergencyPathFinder
 from argparse import ArgumentParser
 
+# default graph data, if data were not specified by user
 EDGES = [
     (1, 2, {'weight': 2}),
     (2, 3, {'weight': 1}),
@@ -19,17 +21,16 @@ EDGES = [
     (5, 9, {'weight': 5})
 ]
 
-REMOVED_EDGE = (2, 3)
-
 
 def get_args():
     parser = ArgumentParser(description="Application for finding paths in a graph in case of emergency edges.")
-    parser.add_argument('-i', dest='input', type=str, help='path to json file containing list of edges, eg. input.json')
+    parser.add_argument('-i', dest='input', type=str, help='path to json file containing list of edges, eg. input.json.'
+                                                           ' For example input file, look at input.json file in this folder.')
     parser.add_argument('-o', dest='output', type=str, help='path to output file, eg. out.txt')
     parser.add_argument('-r', dest='removed', type=int, nargs=2, help='edge to remove eg. 1 3')
-    parser.add_argument('-d', action='store_true', dest='draw', help='Draw graphs')
-    parser.add_argument('start', type=int, help='Start node number, eg. 1')
-    parser.add_argument('end', type=int, help='End node number, eg. 3')
+    parser.add_argument('-p', '--print', dest='draw', action='store_true', help='print graph to screen using pyplot library')
+    parser.add_argument('-s', dest='start', type=int, help='start node number, eg. 1')
+    parser.add_argument('-e', dest='end', type=int, help='end node number, eg. 3')
 
     return parser.parse_args()
 
@@ -63,7 +64,10 @@ def get_removed_edges(args, path):
 
 
 def log_path(finder, path):
-    logging.info('distance: {0}, path {1}\n'.format(finder.get_path_length(path), '->'.join(map(str, path))))
+    if path:
+        logging.info('distance: {0}, path {1}\n'.format(finder.get_path_length(path), '->'.join(map(str, path))))
+    else:
+        logging.info('path not found!\n')
 
 
 def configure_logger(output):
@@ -77,16 +81,34 @@ def log_input_data(edges):
     logging.info('')
 
 
+def get_start_end_nodes(edges, args):
+    numbers = set([n[0] for n in edges]).union([n[1] for n in edges])
+    print numbers
+    start, end = args.start, args.end
+    if not start or start not in numbers:
+        start = random.choice(list(numbers))
+        logging.info('Invalid start node specified. Taking random node.'.format(start))
+
+    numbers.remove(start)
+    if not end or end not in numbers:
+        end = random.choice(list(numbers))
+        logging.info('Invalid end node specified. Taking random node.'.format(start))
+
+    logging.info('Start node: {0}, end node: {1}\n'.format(start, end))
+    return start, end
+
+
 def run():
     args = get_args()
     configure_logger(args.output)
     edges = get_edge_data(args)
-    finder = EmergencyPathFinder(edges, args.start, args.end)
+    start, end = get_start_end_nodes(edges, args)
+    finder = EmergencyPathFinder(edges, start, end)
 
     log_input_data(edges)
 
     original_path = finder.get_original_path()
-    logging.info('Original path from node {0} to node {1}'.format(args.start, args.end))
+    logging.info('Original path from node {0} to node {1}'.format(start, end))
     log_path(finder, original_path)
 
     removed_edges = get_removed_edges(args, original_path)

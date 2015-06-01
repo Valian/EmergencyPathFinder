@@ -40,11 +40,13 @@ class EmergencyPathFinder(object):
 
         plt.axis('off')
         plt.legend((
-            'nodes', 'edges', 'original path, dist: {0}'.format(self.get_path_length(self.original_path)),
+            'nodes', 'edges', 'original path, dist: {0}'.format(self._get_path_length_label(self.original_path)),
             'removed edge {0}'.format(deleted_edge),
-            'emergency path, dist: {0}'.format(self.get_path_length(emergency_path))))
+            'emergency path, dist: {0}'.format(self._get_path_length_label(emergency_path))))
         plt.show()
 
+    def _get_path_length_label(self, path):
+        return self.get_path_length(path) if path else 'None'
 
     @staticmethod
     def _draw_path(path, pos, **kwargs):
